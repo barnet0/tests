@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+
+    <!-- WS 的标准配置。业务的WS需要，请配置到 业务WS工程下的 xml 文件 -->
+
+    <!-- 对 含 service 包中的所有类进行扫描，以完成Bean创建和自动依赖注入的功能 -->
+    <context:component-scan base-package="com.digiwin.ecims.ontime"/>
+    <context:annotation-config/>
+
+    <!-- 定时任务计划控制 ,在此声明,就在本运行环境启动定时任务的执行,group必须是唯一性 , 测试中 weblogic暂不配置 -->
+    <bean id="schedulerFactoryIntf"
+          class="com.digiwin.ecims.ontime.service.impl.SchedulerFactoryDynamic"
+          scope="singleton">
+        <property name="quartzPropertiesFileName">
+            <value>quartz/quartz4Platform.properties</value>
+        </property>
+        <property name="group">
+            <value>1</value>
+        </property>
+        <property name="jobClassName">
+            <value>JobExecuter1</value>
+        </property>
+    </bean>
+    <bean id="springContext" class="com.digiwin.ecims.ontime.util.MySpringContext"></bean>
+</beans>

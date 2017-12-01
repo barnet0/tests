@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.2.xsd
+        http://www.springframework.org/schema/cache 
+        http://www.springframework.org/schema/cache/spring-cache-3.2.xsd
+        http://www.springframework.org/schema/mvc 
+        http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">
+    <!-- spring context配置文件 -->
+    <context:component-scan base-package="com.digiwin.ecims.">
+        <context:exclude-filter type="regex"
+                                expression=".*Controller$"/>
+    </context:component-scan>
+    <!--propeties文件的配置 -->
+    <bean
+            class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:db.properties</value>
+            </list>
+        </property>
+    </bean>
+    <!--sessionFactory的定义 -->
+    <bean id="sessionFactory"
+          class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <!--注入数据源 -->
+        <property name="dataSource" ref="dataSource"/>
+        <property name="packagesToScan">
+            <list>
+                <value>com.digiwin.ecims.*.model</value>
+                <value>com.digiwin.ecims.*.*.model</value>
+                <value>com.digiwin.ecims.*.*.*.model</value>
+                <value>com.digiwin.ecims.*.*.*.*.model</value>
+            </list>
+        </property>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">${database.dialect}</prop>
+                <prop key="hibernate.show_sql">false</prop>
+                <prop key="hibernate.format_sql">false</prop>
+                <prop key="hibernate.use_sql_comments">false</prop>
+<!--                <prop key="hibernate.current_session_context_class">
+                    org.springframework.orm.hibernate4.SpringSessionContext
+                </prop>-->
+                <!-- <prop key="hibernate.hbm2ddl.auto">update</prop> -->
+            </props>
+        </property>
+    </bean>
+    <!--连接池的配置，使用c3p0 -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+          destroy-method="close">
+        <property name="driverClass" value="${database.driverClass}"/>
+        <property name="jdbcUrl" value="${database.jdbcUrl}"/>
+        <property name="user" value="${database.user}"/>
+        <property name="password" value="${database.password}"/>
+        <!-- 连接数。可以等于taskscheduleconfig中的排程数量，以解决线程等待问题 -->
+        <property name="maxPoolSize" value="300"/>
+        <property name="minPoolSize" value="50"/>
+        <property name="initialPoolSize" value="50"/>
+        <property name="maxIdleTime" value="1000"/>
+        <!--当连接池中的连接耗尽的时候c3p0一次同时获取的连接数。Default: 10 -->
+        <property name="acquireIncrement" value="10"/>
+        <!--连接关闭时默认将所有未提交的操作回滚。Default: false -->
+        <property name="autoCommitOnClose" value="false"/>
+        <!--定义在从数据库获取新连接失败后重复尝试的次数。Default: 30 -->
+        <property name="acquireRetryAttempts" value="30"/>
+        <!--每60秒检查所有连接池中的空闲连接。Default: 0 -->
+        <property name="idleConnectionTestPeriod" value="60"/>
+        <!--c3p0是异步操作的，缓慢的JDBC操作通过帮助进程完成。扩展这些操作可以有效的提升性能 通过多线程实现多个操作同时被执行。Default: 
+            3 -->
+        <property name="numHelperThreads" value="10"/>
+        <!--maxStatementsPerConnection定义了连接池内单个连接所拥有的最大缓存statements数。Default: 0 -->
+        <property name="maxStatementsPerConnection" value="20"/>
+        <!--c3p0将建一张名为Test的空表，并使用其自带的查询语句进行测试。如果定义了这个参数那么 属性preferredTestQuery将被忽略。你不能在这张Test表上进行任何操作，它将只供c3p0测试 
+            使用。Default: null -->
+        <property name="automaticTestTable" value="Test"/>
+        <property name="maxStatements" value="20"/>
+        <!--如果设为true那么在取得连接的同时将校验连接的有效性。Default: false -->
+        <property name="testConnectionOnCheckin" value="true"/>
+
+        <!-- add by mowj 2015.11.13 尝试监测c3p0连接泄漏的问题。ref:http://zhaoshijie.iteye.com/blog/1170802 -->
+        <!-- 当出现连接不能被缓冲池正常关闭后,在日志中显示异常堆栈 -->
+        <property name="debugUnreturnedConnectionStackTraces" value="true"/>
+        <!-- 当出现连接不能被缓冲池正常关闭后（大于maxIdleTime后还是未被关闭）,此时再过30秒，由连接缓冲池主动kill -->
+        <property name="unreturnedConnectionTimeout" value="1030"/>
+
+        <!-- add by mowj 2015.11.13 避免热部署时(在应用启动时Redeploy)导致内存泄漏 -->
+        <!-- 使用c3p0的ClassLoader，可以使客户端不再保持需要热部署的内存引用 -->
+        <!-- <property name="contextClassLoaderSource" value="library" /> -->
+        <!-- 使用c3p0库的AccessControlContext，而不是与客户端关联的AccessControlContext，导致无法被GC -->
+        <!-- <property name="privilegeSpawnedThreads" value="true" /> -->
+    </bean>
+    <!-- 使用JavaMelody监控数据源与SQL语句 -->
+    <bean id="springDataSourceBeanPostProcessor"
+          class="net.bull.javamelody.SpringDataSourceBeanPostProcessor">
+    </bean>
+    <bean id="wrappedDataSource" class="net.bull.javamelody.SpringDataSourceFactoryBean">
+        <property name="targetName" value="dataSource"/>
+    </bean>
+
+    <!-- add by mowj 20151125 添加Spring的线程池，修改现在推送每次都要新建一个线程池的做法 -->
+    <bean id="threadPoolTaskExecutor"
+          class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <!-- 核心线程数，默认为1 。此处设定为CPU核数的2倍(Intel CPU用)-->
+        <property name="corePoolSize" value="96"/>
+        <!-- 最大线程数，默认为Integer.MAX_VALUE 。此处设定为CPU核数的2倍(Intel CPU用)-->
+        <property name="maxPoolSize" value="96"/>
+        <!-- 队列最大长度，一般需要设置值>=notifyScheduledMainExecutor.maxNum；默认为Integer.MAX_VALUE -->
+        <!-- 此处设定为CPU核数的4倍 -->
+        <property name="queueCapacity" value="192"/>
+        <!-- 线程池维护线程所允许的空闲时间，默认为60s -->
+        <property name="keepAliveSeconds" value="60"/>
+        <!-- 线程池对拒绝任务（无线程可用）的处理策略，目前只支持AbortPolicy、CallerRunsPolicy；默认为后者 -->
+        <property name="rejectedExecutionHandler">
+            <!-- AbortPolicy:直接抛出java.util.concurrent.RejectedExecutionException异常 -->
+            <!-- CallerRunsPolicy:主线程直接执行该任务，执行完之后尝试添加下一个任务到线程池中，可以有效降低向线程池内添加任务的速度 -->
+            <!-- DiscardOldestPolicy:抛弃旧的任务、暂不支持；会导致被丢弃的任务无法再次被执行 -->
+            <!-- DiscardPolicy:抛弃当前任务、暂不支持；会导致被丢弃的任务无法再次被执行 -->
+            <bean class="java.util.concurrent.ThreadPoolExecutor$AbortPolicy"/>
+        </property>
+    </bean>
+
+    <!--事务管理的配置 -->
+    <bean id="transactionManager"
+          class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+    <bean id="transactionInterceptor"
+          class="org.springframework.transaction.interceptor.TransactionInterceptor">
+        <property name="transactionManager" ref="transactionManager"/>
+        <!-- 配置事务属性 -->
+        <property name="transactionAttributes">
+            <props>
+                <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="insert*">PROPAGATION_REQUIRED</prop>
+                <prop key="create*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="remove*">PROPAGATION_REQUIRED</prop>
+                <prop key="batch*">PROPAGATION_REQUIRED</prop>
+                <prop key="execute*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="find*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="query*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="search*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="is*">readOnly</prop>
+                <!-- 定时任务事务处理 -->
+                <prop key="timeOutExecute*">PROPAGATION_SUPPORTS</prop>
+                <prop key="executeUpdateCheckForDataCycleRun">PROPAGATION_SUPPORTS</prop>
+                <prop key="sync*">PROPAGATION_SUPPORTS</prop>
+                <prop key="init*">readOnly</prop>
+                <prop key="newTransaction*">PROPAGATION_REQUIRES_NEW</prop>
+                <prop key="*">readOnly</prop>
+                <prop key="star*">PROPAGATION_SUPPORTS</prop>
+                <prop key="executeCheckLogic">PROPAGATION_SUPPORTS</prop>
+            </props>
+        </property>
+    </bean>
+    <bean
+            class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+        <property name="beanNames">
+            <list>
+                <!--所有名字以ServiceImpl结尾的bean自动配置事务 -->
+                <!--因为我们是以注解的方式实现的，默认bean的名字就是类的名称 -->
+                <!--平时我们以xml方式配置时，一般给以Service结尾 -->
+                <value>*ServiceImpl</value>
+            </list>
+        </property>
+        <property name="interceptorNames">
+            <list>
+                <value>transactionInterceptor</value>
+            </list>
+        </property>
+    </bean>
+    <cache:annotation-driven/>
+    <!--缓存的配置 -->
+    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
+        <property name="cacheManager">
+            <ref local="cacheMg"/>
+        </property>
+    </bean>
+    <bean id="cacheMg"
+          class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+        <property name="configLocation">
+            <value>classpath:config/ehcache.xml</value>
+        </property>
+    </bean>
+    <!--拦截器 -->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <bean class="com.digiwin.ecims.core.interceptor.LoginInterceptor"/>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <bean class="com.digiwin.ecims.core.interceptor.LogInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+</beans>
