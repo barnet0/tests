@@ -1,0 +1,11 @@
+eclipse.preferences.version=1
+encoding//src/main/java=UTF-8
+encoding//src/main/resources=UTF-8
+encoding//src/main/resources/development=UTF-8
+encoding//src/main/resources/development/log4j.properties=UTF-8
+encoding//src/main/resources/mercury-prod=UTF-8
+encoding//src/main/resources/mercury-prod/log4j.properties=UTF-8
+encoding//src/main/resources/mercury-test=UTF-8
+encoding//src/main/resources/mercury-test/log4j.properties=UTF-8
+encoding//src/test/java=UTF-8
+encoding/<project>=UTF-8

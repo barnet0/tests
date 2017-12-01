@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" output="target/classes" path="src/main/java">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry excluding="**" including="**/*.java" kind="src" output="target/classes" path="src/main/resources">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" output="target/test-classes" path="src/test/java">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/dhgate-api-sdk-java-2.0-beta.jar"/>
+	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/fnGson-1.3.jar"/>
+	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/fnopen-api-sdk-1.3.7.jar"/>
+	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/jstl-1.2.jar"/>
+	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/open-api-sdk-2.0.jar"/>
+	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/osp-sdk.jar"/>
+	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/suning-sdk-java-standard-20160802.jar"/>
+	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/taobao-sdk-java-auto_1470896686928-20160811.jar"/>
+	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/top-schema-1.2.1-20150228.055755-1.jar"/>
+	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/vop-sdk.jar"/>
+	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/yhd-sdk-java.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>
